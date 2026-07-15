@@ -1,0 +1,140 @@
+-- =====================================================================
+-- Loan Processing and Tracking System - PostgreSQL Schema
+-- =====================================================================
+DROP VIEW IF EXISTS loan_register_view CASCADE;
+DROP TABLE IF EXISTS loans CASCADE;
+DROP TABLE IF EXISTS clients CASCADE;
+DROP TABLE IF EXISTS branches CASCADE;
+DROP TABLE IF EXISTS loan_statuses CASCADE;
+DROP TABLE IF EXISTS report_statuses CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS daily_counters CASCADE;
+
+-- ---------------------------------------------------------------------
+-- Users
+-- ---------------------------------------------------------------------
+CREATE TABLE users (
+    id              SERIAL PRIMARY KEY,
+    full_name       VARCHAR(150) NOT NULL,
+    username        VARCHAR(60)  NOT NULL UNIQUE,
+    password_hash   VARCHAR(255) NOT NULL,
+    role            VARCHAR(20)  NOT NULL DEFAULT 'Operator'
+                    CHECK (role IN ('Administrator','Operator')),
+    status          VARCHAR(20)  NOT NULL DEFAULT 'Active'
+                    CHECK (status IN ('Active','Inactive')),
+    created_at      TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- ---------------------------------------------------------------------
+-- Branches
+-- ---------------------------------------------------------------------
+CREATE TABLE branches (
+    id              SERIAL PRIMARY KEY,
+    branch_name     VARCHAR(100) NOT NULL UNIQUE,
+    status          VARCHAR(20)  NOT NULL DEFAULT 'Active'
+                    CHECK (status IN ('Active','Inactive')),
+    created_at      TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- ---------------------------------------------------------------------
+-- Loan Statuses (lookup)
+-- ---------------------------------------------------------------------
+CREATE TABLE loan_statuses (
+    id              SERIAL PRIMARY KEY,
+    status_name     VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- ---------------------------------------------------------------------
+-- Report Statuses (lookup)
+-- ---------------------------------------------------------------------
+CREATE TABLE report_statuses (
+    id              SERIAL PRIMARY KEY,
+    status_name     VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- ---------------------------------------------------------------------
+-- Clients (unique per ID Number)
+-- ---------------------------------------------------------------------
+CREATE TABLE clients (
+    id              SERIAL PRIMARY KEY,
+    name            VARCHAR(100) NOT NULL,
+    surname         VARCHAR(100) NOT NULL,
+    id_number       VARCHAR(20)  NOT NULL UNIQUE,
+    account_number  VARCHAR(50),
+    phone           VARCHAR(30),
+    created_at      TIMESTAMP NOT NULL DEFAULT NOW()
+);
+CREATE INDEX idx_clients_id_number ON clients(id_number);
+
+-- ---------------------------------------------------------------------
+-- Daily counters -> used to generate reference numbers LN-YYYYMMDD-0001
+-- ---------------------------------------------------------------------
+CREATE TABLE daily_counters (
+    counter_date    DATE PRIMARY KEY,
+    last_value      INTEGER NOT NULL DEFAULT 0
+);
+
+-- ---------------------------------------------------------------------
+-- Loans (main business table)
+-- ---------------------------------------------------------------------
+CREATE TABLE loans (
+    id                  SERIAL PRIMARY KEY,
+    reference_number    VARCHAR(30) NOT NULL UNIQUE,
+    client_id           INTEGER NOT NULL REFERENCES clients(id),
+    branch_id           INTEGER NOT NULL REFERENCES branches(id),
+    loan_status_id      INTEGER NOT NULL REFERENCES loan_statuses(id),
+    report_status_id    INTEGER NOT NULL REFERENCES report_statuses(id),
+    amount              NUMERIC(12,2) NOT NULL CHECK (amount >= 0),
+    action_date         DATE NOT NULL,
+    notes               TEXT,
+    created_by          INTEGER REFERENCES users(id),
+    created_at          TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at          TIMESTAMP NOT NULL DEFAULT NOW()
+);
+CREATE INDEX idx_loans_client   ON loans(client_id);
+CREATE INDEX idx_loans_branch   ON loans(branch_id);
+CREATE INDEX idx_loans_status   ON loans(loan_status_id);
+CREATE INDEX idx_loans_report   ON loans(report_status_id);
+CREATE INDEX idx_loans_created  ON loans(created_at);
+
+-- ---------------------------------------------------------------------
+-- View: computes loan_count and group DYNAMICALLY (never stored)
+-- ---------------------------------------------------------------------
+CREATE VIEW loan_register_view AS
+SELECT
+    l.id,
+    l.reference_number,
+    c.id            AS client_id,
+    c.name,
+    c.surname,
+    c.id_number,
+    c.account_number,
+    c.phone,
+    l.amount,
+    b.id            AS branch_id,
+    b.branch_name,
+    lc.loan_count,
+    CASE
+        WHEN lc.loan_count BETWEEN 1 AND 3 THEN 'Group 1'
+        WHEN lc.loan_count BETWEEN 4 AND 8 THEN 'Group 2'
+        ELSE 'Group 3'
+    END AS loan_group,
+    l.loan_status_id,
+    ls.status_name  AS status,
+    l.report_status_id,
+    rs.status_name  AS report_status,
+    l.action_date,
+    l.created_at    AS date_loaded,
+    l.updated_at,
+    l.notes,
+    l.created_by
+FROM loans l
+JOIN clients c          ON c.id = l.client_id
+JOIN branches b         ON b.id = l.branch_id
+JOIN loan_statuses ls   ON ls.id = l.loan_status_id
+JOIN report_statuses rs ON rs.id = l.report_status_id
+JOIN (
+    SELECT client_id, COUNT(*) AS loan_count
+    FROM loans
+    GROUP BY client_id
+) lc ON lc.client_id = l.client_id;

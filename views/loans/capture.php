@@ -1,0 +1,131 @@
+<?php $pageTitle = 'Capture Loan'; ?>
+
+<div class="d-flex justify-content-end mb-3">
+    <a href="<?= APP_URL ?>/loans/register" class="btn btn-outline-brand btn-sm">
+        <i class="bi bi-arrow-left"></i> Back to Register
+    </a>
+</div>
+
+<form id="captureLoanForm" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <div class="panel-card h-100">
+                <h6 class="panel-title"><i class="bi bi-person-vcard-fill me-1"></i> Client Information</h6>
+
+                <div class="mb-3">
+                    <label class="form-label">ID Number *</label>
+                    <input type="text" class="form-control" name="id_number" id="idNumberInput" placeholder="Enter client ID number" required>
+                    <div id="clientLookupHint" class="form-text"></div>
+                    <div class="invalid-feedback" data-error-for="id_number"></div>
+                </div>
+
+                <div id="clientFoundBanner" class="client-banner d-none">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>Existing client found — details auto-filled below.</span>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Name *</label>
+                        <input type="text" class="form-control" name="name" id="nameInput" required>
+                        <div class="invalid-feedback" data-error-for="name"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Surname *</label>
+                        <input type="text" class="form-control" name="surname" id="surnameInput" required>
+                        <div class="invalid-feedback" data-error-for="surname"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Account Number</label>
+                        <input type="text" class="form-control" name="account_number" id="accountNumberInput">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" name="phone" id="phoneInput" placeholder="071 123 4567">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="panel-card h-100">
+                <h6 class="panel-title"><i class="bi bi-cash-coin me-1"></i> Loan Information</h6>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Amount *</label>
+                        <input type="number" step="0.01" min="0" class="form-control" name="amount" required>
+                        <div class="invalid-feedback" data-error-for="amount"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Branch *</label>
+                        <select class="form-select" name="branch_id" required>
+                            <option value="">Select branch</option>
+                            <?php foreach ($branches as $b): ?>
+                                <option value="<?= $b['id'] ?>"><?= htmlspecialchars($b['branch_name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="invalid-feedback" data-error-for="branch_id"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Action Date *</label>
+                        <input type="date" class="form-control" name="action_date" value="<?= date('Y-m-d') ?>" required>
+                        <div class="invalid-feedback" data-error-for="action_date"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Status *</label>
+                        <select class="form-select" name="loan_status_id" required>
+                            <option value="">Select status</option>
+                            <?php foreach ($loanStatuses as $s): ?>
+                                <option value="<?= $s['id'] ?>" <?= $s['status_name']==='Submitted'?'selected':'' ?>><?= htmlspecialchars($s['status_name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="invalid-feedback" data-error-for="loan_status_id"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Report Status *</label>
+                        <select class="form-select" name="report_status_id" required>
+                            <option value="">Select report status</option>
+                            <?php foreach ($reportStatuses as $s): ?>
+                                <option value="<?= $s['id'] ?>" <?= $s['status_name']==='Not Sent'?'selected':'' ?>><?= htmlspecialchars($s['status_name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="invalid-feedback" data-error-for="report_status_id"></div>
+                    </div>
+                </div>
+
+                <div class="system-generated-box mt-3">
+                    <div class="sg-title">SYSTEM GENERATED (Auto-Calculated)</div>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Date Loaded</label>
+                            <input type="text" class="form-control" value="<?= date('d/m/Y') ?>" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Loan Count</label>
+                            <input type="text" class="form-control" id="loanCountDisplay" value="1" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Group</label>
+                            <input type="text" class="form-control" id="groupDisplay" value="Group 1 (1 - 3 Loans)" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="panel-card">
+                <label class="form-label">Notes (Optional)</label>
+                <textarea class="form-control" name="notes" rows="3" placeholder="Enter any additional notes here..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-3">
+        <button type="reset" class="btn btn-outline-secondary" id="clearFormBtn"><i class="bi bi-arrow-counterclockwise"></i> Clear</button>
+        <button type="submit" class="btn btn-primary-brand" id="saveLoanBtn"><i class="bi bi-check-lg"></i> Save Loan</button>
+    </div>
+</form>
+
+<?php $pageScripts = '<script src="' . APP_URL . '/assets/js/capture.js"></script>'; ?>
