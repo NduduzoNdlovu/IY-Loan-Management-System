@@ -73,6 +73,43 @@
     </div>
 </div>
 
+
+<div class="panel-card mt-3">
+    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+        <h6 class="panel-title mb-0">Monthly Branch Budget Overview (<?= date('F Y') ?>)</h6>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-muted small">
+                Company: Allocated <strong>R<?= number_format($companyAllocated, 2) ?></strong>
+                &middot; Spent <strong>R<?= number_format($companySpent, 2) ?></strong>
+                &middot; Remaining <strong class="<?= ($companyAllocated - $companySpent) < 0 ? 'text-danger' : '' ?>">R<?= number_format($companyAllocated - $companySpent, 2) ?></strong>
+            </span>
+            <?php if (Auth::isAdmin()): ?>
+                <a href="<?= APP_URL ?>/budgets" class="btn btn-sm btn-outline-brand">Manage Budgets</a>
+            <?php endif; ?>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-clean align-middle mb-0">
+            <thead>
+                <tr><th>Branch</th><th>Allocated</th><th>Spent</th><th>Remaining</th></tr>
+            </thead>
+            <tbody>
+            <?php foreach ($budgetOverview as $b): ?>
+                <tr>
+                    <td class="fw-semibold"><?= htmlspecialchars($b['branch_name']) ?></td>
+                    <td>R<?= number_format($b['allocated'], 2) ?></td>
+                    <td>R<?= number_format($b['spent'], 2) ?></td>
+                    <td class="<?= $b['remaining'] < 0 ? 'text-danger fw-semibold' : '' ?>">R<?= number_format($b['remaining'], 2) ?></td>
+                </tr>
+            <?php endforeach; ?>
+            <?php if (empty($budgetOverview)): ?>
+                <tr><td colspan="4" class="text-center text-muted py-4">No budgets set for this month yet.<?= Auth::isAdmin() ? ' <a href="'.APP_URL.'/budgets">Set them up here</a>.' : '' ?></td></tr>
+            <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <div class="panel-card mt-3">
     <h6 class="panel-title">Recent Activity</h6>
     <div class="table-responsive">

@@ -10,6 +10,57 @@ document.addEventListener('DOMContentLoaded', function () {
     const groupBox       = document.getElementById('groupDisplay');
     const form           = document.getElementById('captureLoanForm');
 
+    const branchSelect   = form.querySelector('[name="branch_id"]');
+    const actionDateInput = form.querySelector('[name="action_date"]');
+    const amountInput     = form.querySelector('[name="amount"]');
+    const budgetBox       = document.getElementById('budgetStatusBox');
+
+        function refreshBudgetStatus() {
+        const branchId = branchSelect.value;
+        if (!branchId) { budgetBox.classList.add('d-none'); return; }
+
+        const actionDate = actionDateInput.value || new Date().toISOString().slice(0, 10);
+        const month = actionDate.slice(0, 7) + '-01'; // YYYY-MM-01
+
+        fetch(window.APP_URL + '/budgets/status?branch_id=' + encodeURIComponent(branchId) + '&month=' + encodeURIComponent(month))
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) { budgetBox.classList.add('d-none'); return; }
+                budgetBox.classList.remove('d-none');
+
+                document.getElementById('budgetMonthLabel').textContent =
+                    new Date(month + 'T00:00:00').toLocaleDateString('en-ZA', { month: 'long', year: 'numeric' });
+                document.getElementById('budgetAllocated').textContent = fmtMoney(data.branch.allocated);
+                document.getElementById('budgetSpent').textContent     = fmtMoney(data.branch.spent);
+                document.getElementById('budgetRemaining').textContent = fmtMoney(data.branch.remaining);
+                document.getElementById('companyBudgetSummary').textContent =
+                    'Allocated ' + fmtMoney(data.company.allocated) + ' · Spent ' + fmtMoney(data.company.spent) +
+                    ' · Remaining ' + fmtMoney(data.company.remaining);
+
+                const pct = data.branch.allocated > 0 ? Math.min(100, (data.branch.spent / data.branch.allocated) * 100) : 0;
+                const bar = document.getElementById('budgetProgressBar');
+                bar.style.width = pct + '%';
+                bar.classList.toggle('bg-danger', data.branch.remaining < 0);
+
+                checkAmountAgainstBudget(data.branch.remaining);
+            })
+            .catch(() => budgetBox.classList.add('d-none'));
+    }
+
+    function checkAmountAgainstBudget(remaining) {
+        const warning = document.getElementById('budgetWarning');
+        const amount = parseFloat(amountInput.value) || 0;
+        warning.classList.toggle('d-none', !(amount > 0 && amount > remaining));
+    }
+
+    branchSelect.addEventListener('change', refreshBudgetStatus);
+    actionDateInput.addEventListener('change', refreshBudgetStatus);
+    amountInput.addEventListener('input', function () {
+        const remainingText = document.getElementById('budgetRemaining').textContent;
+        const remaining = parseFloat(remainingText.replace(/[^0-9.-]/g, '')) || 0;
+        if (!budgetBox.classList.contains('d-none')) checkAmountAgainstBudget(remaining);
+    });
+
     let lookupTimer = null;
 
     function resetClientState() {
@@ -89,6 +140,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     form.reset();
                     resetClientState();
                     hint.textContent = '';
+                     budgetBox.classList.add('d-none');
                 } else if (data.errors) {
                     showErrors(data.errors);
                 } else {

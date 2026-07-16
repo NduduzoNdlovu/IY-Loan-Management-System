@@ -336,6 +336,37 @@ public function recentActivity(int $limit = 8): array
         ['limit' => $limit]
     )->fetchAll();
 }
+
+ // -------------------------------------------------------------
+    // Budget tracking (amount spent per branch for a given month)
+    // NOTE: 'Rejected' loans are excluded because no funds were disbursed.
+    // -------------------------------------------------------------
+    public function spentByBranchForMonth(string $month): array
+    {
+        return $this->query(
+            "SELECT l.branch_id, COALESCE(SUM(l.amount), 0) AS spent
+             FROM loans l
+             JOIN loan_statuses ls ON ls.id = l.loan_status_id
+             WHERE date_trunc('month', l.created_at) = date_trunc('month', :m::date)
+               AND ls.status_name != 'Rejected'
+             GROUP BY l.branch_id",
+            ['m' => $month]
+        )->fetchAll();
+    }
+
+    public function spentForBranchMonth(int $branchId, string $month): float
+    {
+        return (float) $this->query(
+            "SELECT COALESCE(SUM(l.amount), 0) AS spent
+             FROM loans l
+             JOIN loan_statuses ls ON ls.id = l.loan_status_id
+             WHERE l.branch_id = :b
+               AND date_trunc('month', l.created_at) = date_trunc('month', :m::date)
+               AND ls.status_name != 'Rejected'",
+            ['b' => $branchId, 'm' => $month]
+        )->fetch()['spent'];
+    }
+
     // -------------------------------------------------------------
     // Reports screen
     // -------------------------------------------------------------

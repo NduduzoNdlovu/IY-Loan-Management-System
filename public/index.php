@@ -75,4 +75,10 @@ $router->post('/users/{id}/toggle',          ['UserController', 'deactivate']);
 $router->get('/settings',          ['SettingsController', 'index']);
 $router->post('/settings/password',['SettingsController', 'changePassword']);
 
+// Branch Budgets (monthly loan-out allocation per branch)
+$router->get('/budgets',        ['BudgetController', 'index']);   // admin-only management screen
+$router->get('/budgets/list',   ['BudgetController', 'list']);    // admin-only AJAX table data
+$router->post('/budgets/save',  ['BudgetController', 'save']);    // admin-only AJAX save
+$router->get('/budgets/status', ['BudgetController', 'status']);  // any logged-in user - used by Capture Loan
+
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

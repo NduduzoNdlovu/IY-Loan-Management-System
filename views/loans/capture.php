@@ -62,7 +62,8 @@
                         <select class="form-select" name="branch_id" required>
                             <option value="">Select branch</option>
                             <?php foreach ($branches as $b): ?>
-                                <option value="<?= $b['id'] ?>"><?= htmlspecialchars($b['branch_name']) ?></option>
+                                <!-- htmlspecialchars($b['branch_name']) -->
+                                <option value="<?= $b['id'] ?>"><?=htmlspecialchars($b['branch_name'] . ' (' . $b['id'] . ')') ?></option>
                             <?php endforeach; ?>
                         </select>
                         <div class="invalid-feedback" data-error-for="branch_id"></div>
@@ -91,6 +92,31 @@
                             <?php endforeach; ?>
                         </select>
                         <div class="invalid-feedback" data-error-for="report_status_id"></div>
+                    </div>
+                </div>
+
+                
+                <div class="budget-status-box mt-3 d-none" id="budgetStatusBox">
+                    <div class="sg-title">BRANCH BUDGET STATUS (<span id="budgetMonthLabel"><?= date('F Y') ?></span>)</div>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="budget-figure"><span>Allocated</span><strong id="budgetAllocated">R0.00</strong></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="budget-figure"><span>Spent</span><strong id="budgetSpent">R0.00</strong></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="budget-figure"><span>Remaining</span><strong id="budgetRemaining">R0.00</strong></div>
+                        </div>
+                    </div>
+                    <div class="progress mt-2" style="height:6px;">
+                        <div class="progress-bar" id="budgetProgressBar" role="progressbar" style="width:0%"></div>
+                    </div>
+                    <div id="budgetWarning" class="text-danger small mt-2 d-none">
+                        <i class="bi bi-exclamation-triangle-fill"></i> This amount exceeds the branch's remaining budget for this month.
+                    </div>
+                    <div class="text-muted small mt-2">
+                        Company-wide this month: <span id="companyBudgetSummary">-</span>
                     </div>
                 </div>
 

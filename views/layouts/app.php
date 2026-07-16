@@ -10,6 +10,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/1.13.11/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 <link href="<?= APP_URL ?>/assets/css/style.css" rel="stylesheet">
+<link rel="icon" type="image/png" href="<?= APP_URL ?>/public/assets/images/favicon.png">
 </head>
 <body>
 <div class="app-shell">
@@ -47,6 +48,11 @@
             <a href="<?= APP_URL ?>/branches" class="nav-link <?= str_contains($_SERVER['REQUEST_URI'],'/branches')?'active':'' ?>">
                 <i class="bi bi-diagram-3-fill"></i><span>Branches</span>
             </a>
+            <?php if (Auth::isAdmin()): ?>
+            <a href="<?= APP_URL ?>/budgets" class="nav-link <?= str_contains($_SERVER['REQUEST_URI'],'/budgets')?'active':'' ?>">
+                <i class="bi bi-wallet2"></i><span>Branch Budgets</span>
+            </a>
+            <?php endif; ?>
             <?php if (Auth::isAdmin()): ?>
             <a href="<?= APP_URL ?>/users" class="nav-link <?= str_contains($_SERVER['REQUEST_URI'],'/users')?'active':'' ?>">
                 <i class="bi bi-people-fill"></i><span>Users</span>
