@@ -62,8 +62,7 @@
                         <select class="form-select" name="branch_id" required>
                             <option value="">Select branch</option>
                             <?php foreach ($branches as $b): ?>
-                                <!-- htmlspecialchars($b['branch_name']) -->
-                                <option value="<?= $b['id'] ?>"><?=htmlspecialchars($b['branch_name'] . ' (' . $b['id'] . ')') ?></option>
+                                <option value="<?= $b['id'] ?>"><?= htmlspecialchars($b['branch_name']) ?></option>
                             <?php endforeach; ?>
                         </select>
                         <div class="invalid-feedback" data-error-for="branch_id"></div>
@@ -74,28 +73,27 @@
                         <div class="invalid-feedback" data-error-for="action_date"></div>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Status *</label>
+                        <label class="form-label">Loan Status *</label>
                         <select class="form-select" name="loan_status_id" required>
-                            <option value="">Select status</option>
+                            <option value="">Select loan status</option>
                             <?php foreach ($loanStatuses as $s): ?>
-                                <option value="<?= $s['id'] ?>" <?= $s['status_name']==='Submitted'?'selected':'' ?>><?= htmlspecialchars($s['status_name']) ?></option>
+                                <option value="<?= $s['id'] ?>" <?= $s['status_name']==='Pending Review'?'selected':'' ?>><?= htmlspecialchars($s['status_name']) ?></option>
                             <?php endforeach; ?>
                         </select>
                         <div class="invalid-feedback" data-error-for="loan_status_id"></div>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Report Status *</label>
-                        <select class="form-select" name="report_status_id" required>
-                            <option value="">Select report status</option>
-                            <?php foreach ($reportStatuses as $s): ?>
-                                <option value="<?= $s['id'] ?>" <?= $s['status_name']==='Not Sent'?'selected':'' ?>><?= htmlspecialchars($s['status_name']) ?></option>
+                        <label class="form-label">Repayment Status *</label>
+                        <select class="form-select" name="repayment_status_id" required>
+                            <option value="">Select repayment status</option>
+                            <?php foreach ($repaymentStatuses as $s): ?>
+                                <option value="<?= $s['id'] ?>" <?= $s['status_name']==='Not Due'?'selected':'' ?>><?= htmlspecialchars($s['status_name']) ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <div class="invalid-feedback" data-error-for="report_status_id"></div>
+                        <div class="invalid-feedback" data-error-for="repayment_status_id"></div>
                     </div>
                 </div>
 
-                
                 <div class="budget-status-box mt-3 d-none" id="budgetStatusBox">
                     <div class="sg-title">BRANCH BUDGET STATUS (<span id="budgetMonthLabel"><?= date('F Y') ?></span>)</div>
                     <div class="row g-3">
@@ -117,6 +115,9 @@
                     </div>
                     <div class="text-muted small mt-2">
                         Company-wide this month: <span id="companyBudgetSummary">-</span>
+                    </div>
+                    <div class="text-muted small mt-1">
+                        "Spent" only counts loans with Loan Status <strong>Disbursed</strong> or <strong>Closed</strong> — funds aren't counted as spent until they've actually been paid out.
                     </div>
                 </div>
 

@@ -19,17 +19,17 @@
             </select>
         </div>
         <div class="col-6 col-md-3">
-            <label class="form-label small">Status</label>
+            <label class="form-label small">Loan Status</label>
             <select class="form-select form-select-sm" id="r_loan_status_id">
-                <option value="">All Statuses</option>
+                <option value="">All Loan Statuses</option>
                 <?php foreach ($loanStatuses as $s): ?><option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['status_name']) ?></option><?php endforeach; ?>
             </select>
         </div>
         <div class="col-6 col-md-3">
-            <label class="form-label small">Report Status</label>
-            <select class="form-select form-select-sm" id="r_report_status_id">
-                <option value="">All Statuses</option>
-                <?php foreach ($reportStatuses as $s): ?><option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['status_name']) ?></option><?php endforeach; ?>
+            <label class="form-label small">Repayment Status</label>
+            <select class="form-select form-select-sm" id="r_repayment_status_id">
+                <option value="">All Repayment Statuses</option>
+                <?php foreach ($repaymentStatuses as $s): ?><option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['status_name']) ?></option><?php endforeach; ?>
             </select>
         </div>
         <div class="col-6 col-md-3">
@@ -51,7 +51,7 @@
     <div class="kpi-card"><div><div class="kpi-label">Total Amount</div><div class="kpi-value" id="rk_total_amount">R0.00</div></div></div>
     <div class="kpi-card"><div><div class="kpi-label">Active Loans</div><div class="kpi-value" id="rk_active_loans">0</div></div></div>
     <div class="kpi-card"><div><div class="kpi-label">Paid Loans</div><div class="kpi-value" id="rk_paid_loans">0</div></div></div>
-    <div class="kpi-card"><div><div class="kpi-label">Overdue Loans</div><div class="kpi-value" id="rk_overdue_loans">0</div></div></div>
+    <div class="kpi-card"><div><div class="kpi-label">Defaulted Loans</div><div class="kpi-value" id="rk_overdue_loans">0</div></div></div>
 </div>
 
 <div class="panel-card mt-3">
@@ -59,7 +59,7 @@
     <div class="table-responsive">
         <table class="table table-clean align-middle" id="reportBranchTable">
             <thead>
-                <tr><th>Branch</th><th>Total Loans</th><th>Total Amount</th><th>Active Loans</th><th>Paid Loans</th><th>Overdue Loans</th></tr>
+                <tr><th>Branch</th><th>Total Loans</th><th>Total Amount</th><th>Active Loans</th><th>Paid Loans</th><th>Defaulted Loans</th></tr>
             </thead>
             <tbody></tbody>
         </table>

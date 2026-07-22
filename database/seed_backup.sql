@@ -12,22 +12,11 @@ INSERT INTO users (full_name, username, password_hash, role, status) VALUES
 INSERT INTO branches (branch_name) VALUES
 ('Durban'), ('Pietermaritzburg'), ('Bizana'), ('New Castle'), ('Pine Town'), ('WitBank'), ('Middleburg');
 
--- Loan Status: application / disbursement lifecycle
 INSERT INTO loan_statuses (status_name) VALUES
-('Pending Review'),
-('Approved'),
-('Disbursed'),
-('Rejected'),
-('Closed');
+('Loaded'), ('Submitted'), ('In Progress'), ('Approved'), ('Rejected'), ('Completed');
 
--- Repayment Status: where the client's repayment stands
-INSERT INTO repayment_statuses (status_name) VALUES
-('Not Due'),
-('Pending Payment'),
-('Partially Paid'),
-('Paid'),
-('Defaulted'),
-('Rolled Over');
+INSERT INTO report_statuses (status_name) VALUES
+('Pending'), ('Due'), ('Paid'), ('Partially Paid'), ('Overdue'), ('Rolled Over'), ('Defaulted');
 
 INSERT INTO daily_counters (counter_date, last_value) VALUES (CURRENT_DATE, 0)
 ON CONFLICT (counter_date) DO NOTHING;

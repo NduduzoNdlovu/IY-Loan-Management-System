@@ -29,11 +29,11 @@
                 <?php endforeach; ?>
             </select>
         </div>
-        <div class="col-6 col-md-3 col-lg-2">
-            <label class="form-label small">Report Status</label>
-            <select class="form-select form-select-sm" id="f_report_status_id">
-                <option value="">All</option>
-                <?php foreach ($reportStatuses as $s): ?>
+               <div class="col-6 col-md-3 col-lg-2">
+            <label class="form-label small">Repayment Status</label>
+            <select class="form-select form-select-sm" id="f_repayment_status_id">
+                <option value="">All Repayment Statuses</option>
+                <?php foreach ($repaymentStatuses as $s): ?>
                     <option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['status_name']) ?></option>
                 <?php endforeach; ?>
             </select>
@@ -157,10 +157,10 @@
                         <?php foreach ($loanStatuses as $s): ?><option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['status_name']) ?></option><?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label">Report Status *</label>
-                    <select class="form-select" name="report_status_id" id="edit_report_status_id" required>
-                        <?php foreach ($reportStatuses as $s): ?><option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['status_name']) ?></option><?php endforeach; ?>
+                      <div class="col-md-6">
+                    <label class="form-label">Repayment Status *</label>
+                    <select class="form-select" name="repayment_status_id" id="edit_repayment_status_id" required>
+                        <?php foreach ($repaymentStatuses as $s): ?><option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['status_name']) ?></option><?php endforeach; ?>
                     </select>
                 </div>
                 <div class="col-12">

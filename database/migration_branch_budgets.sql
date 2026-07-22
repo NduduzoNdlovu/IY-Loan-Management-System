@@ -16,13 +16,3 @@ CREATE TABLE IF NOT EXISTS branch_budgets (
 );
 CREATE INDEX IF NOT EXISTS idx_branch_budgets_month ON branch_budgets(budget_month);
 
-Select*From branch_budgets;
-Select*From branches;
-
-SELECT
-    branch_id,
-    COUNT(*) AS loans,
-    SUM(amount) AS total
-FROM loans
-WHERE branch_id = <Durban id>
-GROUP BY branch_id;

@@ -43,7 +43,7 @@ $router->get('/loans/data',                ['LoanController', 'listData']);
 $router->get('/loans/{id}/edit',           ['LoanController', 'editForm']);
 $router->post('/loans/{id}/update',        ['LoanController', 'update']);
 $router->post('/loans/bulk-status',        ['LoanController', 'bulkStatus']);
-$router->post('/loans/bulk-report-status', ['LoanController', 'bulkReportStatus']);
+$router->post('/loans/bulk-repayment-status', ['LoanController', 'bulkRepaymentStatus']);
 $router->post('/loans/bulk-delete',        ['LoanController', 'bulkDelete']);
 
 // Exports

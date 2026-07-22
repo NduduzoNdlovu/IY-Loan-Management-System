@@ -10,7 +10,9 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/1.13.11/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 <link href="<?= APP_URL ?>/assets/css/style.css" rel="stylesheet">
-<link rel="icon" type="image/png" href="<?= APP_URL ?>/public/assets/images/iylogo.png">
+<!-- <link rel="icon" type="image/png" href="<?= APP_URL ?>/public/assets/images/iylogo.png"> -->
+<link rel="icon" type="image/png" href="assets/images/iylogo.png">
+
 </head>
 <body>
 <div class="app-shell">

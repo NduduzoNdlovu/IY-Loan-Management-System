@@ -3,25 +3,25 @@ let selectedIds = new Set();
 
 function currentFilters() {
     return {
-        search:            $('#globalSearch').val() || '',
-        branch_id:         $('#f_branch_id').val() || '',
-        loan_group:        $('#f_loan_group').val() || '',
-        loan_status_id:    $('#f_loan_status_id').val() || '',
-        report_status_id:  $('#f_report_status_id').val() || '',
-        date_loaded_from:  $('#f_date_loaded_from').val() || '',
-        date_loaded_to:    $('#f_date_loaded_to').val() || '',
-        action_date_from:  $('#f_action_date_from').val() || '',
-        action_date_to:    $('#f_action_date_to').val() || '',
-        amount_min:        $('#f_amount_min').val() || '',
-        amount_max:        $('#f_amount_max').val() || '',
-        loan_count_min:    $('#f_loan_count_min').val() || '',
-        loan_count_max:    $('#f_loan_count_max').val() || '',
+        search:                $('#globalSearch').val() || '',
+        branch_id:             $('#f_branch_id').val() || '',
+        loan_group:            $('#f_loan_group').val() || '',
+        loan_status_id:        $('#f_loan_status_id').val() || '',
+        repayment_status_id:   $('#f_repayment_status_id').val() || '',
+        date_loaded_from:      $('#f_date_loaded_from').val() || '',
+        date_loaded_to:        $('#f_date_loaded_to').val() || '',
+        action_date_from:      $('#f_action_date_from').val() || '',
+        action_date_to:        $('#f_action_date_to').val() || '',
+        amount_min:            $('#f_amount_min').val() || '',
+        amount_max:            $('#f_amount_max').val() || '',
+        loan_count_min:        $('#f_loan_count_min').val() || '',
+        loan_count_max:        $('#f_loan_count_max').val() || '',
     };
 }
 
 const ORDER_COLUMNS = [
     null, 'reference_number', 'name', 'surname', 'id_number', 'account_number', 'amount',
-    'branch_name', 'loan_count', 'loan_group', 'status', 'report_status', 'action_date', 'date_loaded', null,
+    'branch_name', 'loan_count', 'loan_group', 'status', 'repayment_status', 'action_date', 'date_loaded', null,
 ];
 
 $(function () {
@@ -45,6 +45,7 @@ $(function () {
                 length: data.length,
                 order_col: ORDER_COLUMNS[orderIdx] || 'date_loaded',
                 order_dir: orderDir,
+                _: Date.now(), // cache-bust: never serve a stale page of results
             }, currentFilters());
 
             $.get(window.APP_URL + '/loans/data', params, function (res) {
@@ -68,7 +69,7 @@ $(function () {
             { data: 'loan_count', className: 'text-center' },
             { data: 'loan_group', render: (d) => `<span class="group-pill ${groupBadgeClass(d)}">${d}</span>` },
             { data: 'status', render: (d) => `<span class="badge-status ${statusBadgeClass(d)}">${d}</span>` },
-            { data: 'report_status', render: (d) => `<span class="badge-status ${statusBadgeClass(d)}">${d}</span>` },
+            { data: 'repayment_status', render: (d) => `<span class="badge-status ${statusBadgeClass(d)}">${d}</span>` },
             { data: 'action_date', render: (d) => d ? new Date(d).toLocaleDateString('en-ZA') : '' },
             { data: 'date_loaded', render: (d) => d ? new Date(d).toLocaleDateString('en-ZA') : '' },
             {
@@ -89,12 +90,12 @@ $(function () {
 
     $('#searchBtn').on('click', () => dtInstance.ajax.reload());
     $('#globalSearch').on('keypress', function (e) { if (e.which === 13) dtInstance.ajax.reload(); });
-    $('#f_branch_id, #f_loan_group, #f_loan_status_id, #f_report_status_id, #f_date_loaded_from, #f_date_loaded_to, #f_action_date_from, #f_action_date_to, #f_amount_min, #f_amount_max, #f_loan_count_min, #f_loan_count_max')
+    $('#f_branch_id, #f_loan_group, #f_loan_status_id, #f_repayment_status_id, #f_date_loaded_from, #f_date_loaded_to, #f_action_date_from, #f_action_date_to, #f_amount_min, #f_amount_max, #f_loan_count_min, #f_loan_count_max')
         .on('change', () => dtInstance.ajax.reload());
 
     $('#clearFiltersBtn').on('click', function () {
         $('#globalSearch, #f_amount_min, #f_amount_max, #f_loan_count_min, #f_loan_count_max, #f_date_loaded_from, #f_date_loaded_to, #f_action_date_from, #f_action_date_to').val('');
-        $('#f_branch_id, #f_loan_group, #f_loan_status_id, #f_report_status_id').val('');
+        $('#f_branch_id, #f_loan_group, #f_loan_status_id, #f_repayment_status_id').val('');
         dtInstance.ajax.reload();
     });
 
@@ -129,12 +130,12 @@ $(function () {
         window.location = window.APP_URL + '/export/filtered?' + qs;
     });
 
-    // ---- Bulk status / report status / delete ----
+    // ---- Bulk loan status / repayment status / delete ----
     $('#applyBulkStatusBtn').on('click', function () {
         postBulk('/loans/bulk-status', { loan_status_id: $('#bulkStatusSelect').val() }, '#changeStatusModal');
     });
-    $('#applyBulkReportStatusBtn').on('click', function () {
-        postBulk('/loans/bulk-report-status', { report_status_id: $('#bulkReportStatusSelect').val() }, '#changeReportStatusModal');
+    $('#applyBulkRepaymentStatusBtn').on('click', function () {
+        postBulk('/loans/bulk-repayment-status', { repayment_status_id: $('#bulkRepaymentStatusSelect').val() }, '#changeRepaymentStatusModal');
     });
     $('#deleteSelectedBtn').on('click', function () {
         if (selectedIds.size === 0) { alert('Please select at least one row.'); return; }
@@ -160,7 +161,7 @@ $(function () {
     // ---- Edit loan ----
     $('#loanTable tbody').on('click', '.edit-loan-btn', function () {
         const id = $(this).data('id');
-        $.get(window.APP_URL + '/loans/' + id + '/edit', function (res) {
+        $.get(window.APP_URL + '/loans/' + id + '/edit', { _: Date.now() }, function (res) {
             if (!res.success) { alert('Loan not found.'); return; }
             const l = res.loan;
             $('#edit_loan_id').val(l.id);
@@ -168,7 +169,7 @@ $(function () {
             $('#edit_branch_id').val(l.branch_id);
             $('#edit_action_date').val(l.action_date);
             $('#edit_loan_status_id').val(l.loan_status_id);
-            $('#edit_report_status_id').val(l.report_status_id);
+            $('#edit_repayment_status_id').val(l.repayment_status_id);
             $('#edit_notes').val(l.notes || '');
             new bootstrap.Modal(document.getElementById('editLoanModal')).show();
         });
@@ -182,7 +183,7 @@ $(function () {
             branch_id: $('#edit_branch_id').val(),
             action_date: $('#edit_action_date').val(),
             loan_status_id: $('#edit_loan_status_id').val(),
-            report_status_id: $('#edit_report_status_id').val(),
+            repayment_status_id: $('#edit_repayment_status_id').val(),
             notes: $('#edit_notes').val(),
         };
         $.post(window.APP_URL + '/loans/' + id + '/update', payload, function (res) {

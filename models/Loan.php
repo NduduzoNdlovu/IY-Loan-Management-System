@@ -6,6 +6,7 @@ class Loan extends Model
 
     // -------------------------------------------------------------
     // Reference number generation: LN-YYYYMMDD-0001 (resets daily)
+    //report_status
     // -------------------------------------------------------------
     public function nextReferenceNumber(): string
     {
@@ -46,7 +47,7 @@ class Loan extends Model
     }
 
     // -------------------------------------------------------------
-    // Create / Update
+    // Create / Update 
     // -------------------------------------------------------------
     public function create(array $d): array
     {
@@ -65,23 +66,24 @@ class Loan extends Model
 
             $this->query(
                 "INSERT INTO loans
-                    (reference_number, client_id, branch_id, loan_status_id, report_status_id,
+                    (reference_number, client_id, branch_id, loan_status_id, repayment_status_id,
                      amount, action_date, notes, created_by)
                  VALUES
-                    (:reference_number, :client_id, :branch_id, :loan_status_id, :report_status_id,
+                    (:reference_number, :client_id, :branch_id, :loan_status_id, :repayment_status_id,
                      :amount, :action_date, :notes, :created_by)",
                 [
-                    'reference_number' => $reference,
-                    'client_id'        => $client['id'],
-                    'branch_id'        => $d['branch_id'],
-                    'loan_status_id'   => $d['loan_status_id'],
-                    'report_status_id' => $d['report_status_id'],
-                    'amount'           => $d['amount'],
-                    'action_date'      => $d['action_date'],
-                    'notes'            => $d['notes'] ?? null,
-                    'created_by'       => $d['created_by'] ?? null,
+                    'reference_number'    => $reference,
+                    'client_id'           => $client['id'],
+                    'branch_id'           => $d['branch_id'],
+                    'loan_status_id'      => $d['loan_status_id'],
+                    'repayment_status_id' => $d['repayment_status_id'],
+                    'amount'              => $d['amount'],
+                    'action_date'         => $d['action_date'],
+                    'notes'               => $d['notes'] ?? null,
+                    'created_by'          => $d['created_by'] ?? null,
                 ]
             );
+
             $loanId = (int) $this->db->lastInsertId('loans_id_seq');
             $this->db->commit();
 
@@ -104,17 +106,17 @@ class Loan extends Model
     {
         return $this->query(
             "UPDATE loans SET branch_id = :branch_id, loan_status_id = :loan_status_id,
-                report_status_id = :report_status_id, amount = :amount, action_date = :action_date,
+                repayment_status_id = :repayment_status_id, amount = :amount, action_date = :action_date,
                 notes = :notes, updated_at = NOW()
              WHERE id = :id",
             [
-                'branch_id'        => $d['branch_id'],
-                'loan_status_id'   => $d['loan_status_id'],
-                'report_status_id' => $d['report_status_id'],
-                'amount'           => $d['amount'],
-                'action_date'      => $d['action_date'],
-                'notes'            => $d['notes'] ?? null,
-                'id'               => $id,
+                'branch_id'           => $d['branch_id'],
+                'loan_status_id'      => $d['loan_status_id'],
+                'repayment_status_id' => $d['repayment_status_id'],
+                'amount'              => $d['amount'],
+                'action_date'         => $d['action_date'],
+                'notes'               => $d['notes'] ?? null,
+                'id'                  => $id,
             ]
         )->rowCount() >= 0;
     }
@@ -151,9 +153,9 @@ class Loan extends Model
             $where[] = "loan_status_id = :loan_status_id";
             $params['loan_status_id'] = $filters['loan_status_id'];
         }
-        if (!empty($filters['report_status_id'])) {
-            $where[] = "report_status_id = :report_status_id";
-            $params['report_status_id'] = $filters['report_status_id'];
+        if (!empty($filters['repayment_status_id'])) {
+            $where[] = "repayment_status_id = :repayment_status_id";
+            $params['repayment_status_id'] = $filters['repayment_status_id'];
         }
         if (!empty($filters['date_loaded_from'])) {
             $where[] = "date_loaded::date >= :date_loaded_from";
@@ -203,7 +205,7 @@ class Loan extends Model
 
     private const SORTABLE = [
         'reference_number', 'name', 'surname', 'id_number', 'account_number', 'amount',
-        'branch_name', 'loan_count', 'loan_group', 'status', 'report_status', 'action_date', 'date_loaded',
+        'branch_name', 'loan_count', 'loan_group', 'status', 'repayment_status', 'action_date', 'date_loaded',
     ];
 
     public function registerList(array $filters, string $orderBy = 'date_loaded', string $orderDir = 'DESC', int $limit = 25, int $offset = 0): array
@@ -238,9 +240,9 @@ class Loan extends Model
         return $this->bulkUpdate($ids, 'loan_status_id', $statusId);
     }
 
-    public function bulkUpdateReportStatus(array $ids, int $statusId): int
+    public function bulkUpdateRepaymentStatus(array $ids, int $statusId): int
     {
-        return $this->bulkUpdate($ids, 'report_status_id', $statusId);
+        return $this->bulkUpdate($ids, 'repayment_status_id', $statusId);
     }
 
     private function bulkUpdate(array $ids, string $column, int $value): int
@@ -278,11 +280,11 @@ class Loan extends Model
     {
         $row = $this->query(
             "SELECT
-                COUNT(*)                                                              AS total_loans,
-                COALESCE(SUM(l.amount), 0)                                            AS total_amount,
-                COUNT(*) FILTER (WHERE ls.status_name NOT IN ('Completed','Rejected')) AS active_loans,
-                COUNT(*) FILTER (WHERE ls.status_name = 'Completed')                  AS completed_loans,
-                COUNT(*) FILTER (WHERE ls.status_name = 'Rejected')                   AS rejected_loans,
+                COUNT(*)                                                          AS total_loans,
+                COALESCE(SUM(l.amount), 0)                                        AS total_amount,
+                COUNT(*) FILTER (WHERE ls.status_name NOT IN ('Closed','Rejected')) AS active_loans,
+                COUNT(*) FILTER (WHERE ls.status_name = 'Closed')                 AS closed_loans,
+                COUNT(*) FILTER (WHERE ls.status_name = 'Rejected')               AS rejected_loans,
                 COUNT(*) FILTER (WHERE date_trunc('month', l.created_at) = date_trunc('month', CURRENT_DATE)) AS new_this_month
              FROM loans l JOIN loan_statuses ls ON ls.id = l.loan_status_id"
         )->fetch();
@@ -329,7 +331,7 @@ class Loan extends Model
 public function recentActivity(int $limit = 8): array
 {
     return $this->query(
-        "SELECT reference_number, name, surname, status, amount, date_loaded
+        "SELECT reference_number, name, surname, status,repayment_status, amount, date_loaded
          FROM loan_register_view
          ORDER BY date_loaded DESC
          LIMIT :limit",
@@ -337,10 +339,18 @@ public function recentActivity(int $limit = 8): array
     )->fetchAll();
 }
 
- // -------------------------------------------------------------
+  // -------------------------------------------------------------
     // Budget tracking (amount spent per branch for a given month)
-    // NOTE: 'Rejected' loans are excluded because no funds were disbursed.
+    //
+    // "Spent" = money that has actually left the branch. Under the loan
+    // lifecycle (Pending Review -> Approved -> Disbursed -> Closed), funds
+    // only leave the branch once a loan reaches Disbursed (or later,
+    // Closed). A Pending Review or Approved loan hasn't paid out yet and
+    // must NOT count against the branch's monthly budget; Rejected loans
+    // never paid out at all.
     // -------------------------------------------------------------
+    private const DISBURSED_STATUSES = ['Disbursed', 'Closed'];
+
     public function spentByBranchForMonth(string $month): array
     {
         return $this->query(
@@ -348,7 +358,7 @@ public function recentActivity(int $limit = 8): array
              FROM loans l
              JOIN loan_statuses ls ON ls.id = l.loan_status_id
              WHERE date_trunc('month', l.created_at) = date_trunc('month', :m::date)
-               AND ls.status_name != 'Rejected'
+               AND ls.status_name IN ('Disbursed', 'Closed')
              GROUP BY l.branch_id",
             ['m' => $month]
         )->fetchAll();
@@ -362,7 +372,7 @@ public function recentActivity(int $limit = 8): array
              JOIN loan_statuses ls ON ls.id = l.loan_status_id
              WHERE l.branch_id = :b
                AND date_trunc('month', l.created_at) = date_trunc('month', :m::date)
-               AND ls.status_name != 'Rejected'",
+               AND ls.status_name IN ('Disbursed', 'Closed')",
             ['b' => $branchId, 'm' => $month]
         )->fetch()['spent'];
     }
@@ -370,14 +380,14 @@ public function recentActivity(int $limit = 8): array
     // -------------------------------------------------------------
     // Reports screen
     // -------------------------------------------------------------
-    public function reportSummary(array $filters): array
+      public function reportSummary(array $filters): array
     {
         [$whereSql, $params] = $this->buildFilterClause($filters);
         $totals = $this->query(
             "SELECT COUNT(*) AS total_loans, COALESCE(SUM(amount),0) AS total_amount,
-                    COUNT(*) FILTER (WHERE status NOT IN ('Completed','Rejected')) AS active_loans,
-                    COUNT(*) FILTER (WHERE status = 'Completed') AS paid_loans,
-                    COUNT(*) FILTER (WHERE status = 'Rejected') AS overdue_loans
+                    COUNT(*) FILTER (WHERE status NOT IN ('Closed','Rejected'))    AS active_loans,
+                    COUNT(*) FILTER (WHERE repayment_status = 'Paid')              AS paid_loans,
+                    COUNT(*) FILTER (WHERE repayment_status = 'Defaulted')         AS overdue_loans
              FROM loan_register_view {$whereSql}", $params
         )->fetch();
 
@@ -385,9 +395,9 @@ public function recentActivity(int $limit = 8): array
             "SELECT branch_name,
                     COUNT(*) AS total_loans,
                     COALESCE(SUM(amount),0) AS total_amount,
-                    COUNT(*) FILTER (WHERE status NOT IN ('Completed','Rejected')) AS active_loans,
-                    COUNT(*) FILTER (WHERE status = 'Completed') AS paid_loans,
-                    COUNT(*) FILTER (WHERE status = 'Rejected') AS overdue_loans
+                    COUNT(*) FILTER (WHERE status NOT IN ('Closed','Rejected'))    AS active_loans,
+                    COUNT(*) FILTER (WHERE repayment_status = 'Paid')              AS paid_loans,
+                    COUNT(*) FILTER (WHERE repayment_status = 'Defaulted')         AS overdue_loans
              FROM loan_register_view {$whereSql}
              GROUP BY branch_name ORDER BY branch_name", $params
         )->fetchAll();

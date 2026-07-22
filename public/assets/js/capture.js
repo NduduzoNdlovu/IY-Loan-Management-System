@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const amountInput     = form.querySelector('[name="amount"]');
     const budgetBox       = document.getElementById('budgetStatusBox');
 
-        function refreshBudgetStatus() {
+    function refreshBudgetStatus() {
         const branchId = branchSelect.value;
         if (!branchId) { budgetBox.classList.add('d-none'); return; }
 
@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     document.getElementById('clearFormBtn').addEventListener('click', function () {
-        setTimeout(() => { resetClientState(); hint.textContent = ''; clearErrors(); }, 10);
+        setTimeout(() => { resetClientState(); hint.textContent = ''; clearErrors(); budgetBox.classList.add('d-none'); }, 10);
     });
 
     function clearErrors() {
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     form.reset();
                     resetClientState();
                     hint.textContent = '';
-                     budgetBox.classList.add('d-none');
+                    budgetBox.classList.add('d-none');
                 } else if (data.errors) {
                     showErrors(data.errors);
                 } else {

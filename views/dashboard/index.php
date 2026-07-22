@@ -23,6 +23,13 @@
         </div>
     </div>
     <div class="kpi-card">
+        <div class="kpi-icon bg-green-soft text-green"><i class="bi bi-check-circle-fill"></i></div>
+        <div>
+            <div class="kpi-label">Closed Loans</div>
+            <div class="kpi-value"><?= number_format((int)($kpis['closed_loans'] ?? 0)) ?></div>
+        </div>
+    </div>
+    <div class="kpi-card">
         <div class="kpi-icon bg-red-soft text-red"><i class="bi bi-exclamation-circle-fill"></i></div>
         <div>
             <div class="kpi-label">Rejected Loans</div>
@@ -116,7 +123,7 @@
         <table class="table table-clean align-middle mb-0">
             <thead>
                 <tr>
-                    <th>Reference</th><th>Name</th><th>Status</th><th>Amount</th><th>Date Loaded</th>
+                    <th>Reference</th><th>Name</th><th>Loan Status</th><th>Repayment Status</th><th>Amount</th><th>Date Loaded</th>
                 </tr>
             </thead>
             <tbody>
@@ -125,12 +132,13 @@
                     <td class="fw-semibold"><?= htmlspecialchars($r['reference_number']) ?></td>
                     <td><?= htmlspecialchars($r['name'] . ' ' . $r['surname']) ?></td>
                     <td><span class="badge-status status-<?= strtolower(str_replace(' ','-',$r['status'])) ?>"><?= htmlspecialchars($r['status']) ?></span></td>
+                    <td><span class="badge-status status-<?= strtolower(str_replace(' ','-',$r['repayment_status'])) ?>"><?= htmlspecialchars($r['repayment_status']) ?></span></td>
                     <td>R<?= number_format((float)$r['amount'], 2) ?></td>
                     <td><?= date('d M Y', strtotime($r['date_loaded'])) ?></td>
                 </tr>
             <?php endforeach; ?>
             <?php if (empty($recent)): ?>
-                <tr><td colspan="5" class="text-center text-muted py-4">No loans captured yet.</td></tr>
+                <tr><td colspan="6" class="text-center text-muted py-4">No loans captured yet.</td></tr>
             <?php endif; ?>
             </tbody>
         </table>

@@ -4,14 +4,14 @@ $(function () {
             branch_id: $('#r_branch_id').val() || '',
             loan_group: $('#r_loan_group').val() || '',
             loan_status_id: $('#r_loan_status_id').val() || '',
-            report_status_id: $('#r_report_status_id').val() || '',
+            repayment_status_id: $('#r_repayment_status_id').val() || '',
             date_from: $('#r_date_from').val() || '',
             date_to: $('#r_date_to').val() || '',
         };
     }
 
     function generate() {
-        $.get(window.APP_URL + '/reports/generate', filters(), function (res) {
+        $.get(window.APP_URL + '/reports/generate', Object.assign({ _: Date.now() }, filters()), function (res) {
             if (!res.success) return;
             $('#rk_total_loans').text(Number(res.totals.total_loans).toLocaleString());
             $('#rk_total_amount').text(fmtMoney(res.totals.total_amount));
@@ -44,7 +44,7 @@ $(function () {
             branch_id: filters().branch_id,
             loan_group: filters().loan_group,
             loan_status_id: filters().loan_status_id,
-            report_status_id: filters().report_status_id,
+            repayment_status_id: filters().repayment_status_id,
             date_loaded_from: filters().date_from,
             date_loaded_to: filters().date_to,
         });
