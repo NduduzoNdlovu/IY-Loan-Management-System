@@ -92,8 +92,8 @@
                     <th>Branch</th>
                     <th>Loan Count</th>
                     <th>Group</th>
-                    <th>Status</th>
-                    <th>Report Status</th>
+                    <th>Loan Status</th>
+                    <th>Repayment Status</th>
                     <th>Action Date</th>
                     <th>Date Loaded</th>
                     <th>Actions</th>
