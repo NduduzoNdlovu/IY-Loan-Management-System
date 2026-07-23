@@ -122,7 +122,7 @@ $(function () {
 
     // ---- Export ----
     $('#exportSelectedBtn').on('click', function () {
-        if (selectedIds.size === 0) { alert('Please select at least one row.'); return; }
+        if (selectedIds.size === 0) { Toast.warning('Please select at least one row.'); return; }
         window.location = window.APP_URL + '/export/selected?ids=' + Array.from(selectedIds).join(',');
     });
     $('#exportFilteredBtn').on('click', function () {
@@ -138,13 +138,13 @@ $(function () {
         postBulk('/loans/bulk-repayment-status', { repayment_status_id: $('#bulkRepaymentStatusSelect').val() }, '#changeRepaymentStatusModal');
     });
     $('#deleteSelectedBtn').on('click', function () {
-        if (selectedIds.size === 0) { alert('Please select at least one row.'); return; }
+        if (selectedIds.size === 0) { Toast.warning('Please select at least one row.'); return; }
         if (!confirm('Delete ' + selectedIds.size + ' selected loan(s)? This cannot be undone.')) return;
         postBulk('/loans/bulk-delete', {}, null);
     });
 
     function postBulk(path, extra, modalSelector) {
-        if (selectedIds.size === 0) { alert('Please select at least one row.'); return; }
+        if (selectedIds.size === 0) { Toast.warning('Please select at least one row.'); return; }
         const payload = Object.assign({ csrf_token: window.CSRF_TOKEN, ids: JSON.stringify(Array.from(selectedIds)) }, extra);
         $.post(window.APP_URL + path, payload, function (res) {
             if (res.success) {
@@ -153,16 +153,16 @@ $(function () {
                 updateBulkBar();
                 dtInstance.ajax.reload(null, false);
             } else {
-                alert(res.message || 'Action failed.');
+                Toast.error(res.message || 'Action failed.');
             }
-        }).fail(() => alert('Action failed. Please try again.'));
+        }).fail(() => Toast.error('Action failed. Please try again.'));
     }
 
     // ---- Edit loan ----
     $('#loanTable tbody').on('click', '.edit-loan-btn', function () {
         const id = $(this).data('id');
         $.get(window.APP_URL + '/loans/' + id + '/edit', { _: Date.now() }, function (res) {
-            if (!res.success) { alert('Loan not found.'); return; }
+            if (!res.success) { Toast.warning('Loan not found.'); return; }
             const l = res.loan;
             $('#edit_loan_id').val(l.id);
             $('#edit_amount').val(l.amount);
@@ -191,18 +191,20 @@ $(function () {
                 bootstrap.Modal.getInstance(document.getElementById('editLoanModal')).hide();
                 dtInstance.ajax.reload(null, false);
             } else {
-                alert('Could not save changes.');
+                Toast.error('Could not save changes.');
             }
-        }).fail(() => alert('Could not save changes.'));
+        }).fail(() => Toast.error('Could not save changes.'));
     });
 
     // ---- Single delete ----
-    $('#loanTable tbody').on('click', '.delete-loan-btn', function () {
+    $('#loanTable tbody').on('click', '.delete-loan-btn', async function () {
         const id = String($(this).data('id'));
-        if (!confirm('Delete this loan? This cannot be undone.')) return;
+         const ok = await Toast.confirm('Delete this loan? This cannot be undone.', { type: 'warning', confirmLabel: 'Confirmtion' });
+        if (!ok) return;
+        // if (!confirm('Delete this loan? This cannot be undone.')) return;
         $.post(window.APP_URL + '/loans/bulk-delete', { csrf_token: window.CSRF_TOKEN, ids: JSON.stringify([id]) }, function (res) {
             if (res.success) dtInstance.ajax.reload(null, false);
-            else alert(res.message || 'Delete failed.');
-        }).fail(() => alert('Delete failed.'));
+            else Toast.error(res.message || 'Delete failed.');
+        }).fail(() => Toast.error('Delete failed.'));
     });
 });

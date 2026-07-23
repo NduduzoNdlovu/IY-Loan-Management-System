@@ -42,7 +42,7 @@ $(function () {
         const amount = row.find('.allocated-input').val();
         const month = $('#budgetMonth').val() + '-01';
 
-        if (amount === '' || parseFloat(amount) < 0) { alert('Please enter a valid, non-negative amount.'); return; }
+        if (amount === '' || parseFloat(amount) < 0) { Toast.warning('Please enter a valid, non-negative amount.'); return; }
 
         $.post(window.APP_URL + '/budgets/save', {
             csrf_token: window.CSRF_TOKEN,
@@ -51,9 +51,9 @@ $(function () {
             allocated_amount: amount,
         }, function (res) {
             if (res.success) { loadBudgets(); }
-            else { alert(res.message || 'Could not save budget.'); }
+            else { Toast.error(res.message || 'Could not save budget.'); }
         }).fail(function (xhr) {
-            alert(xhr.responseJSON?.message || 'Could not save budget.');
+            Toast.error(xhr.responseJSON?.message || 'Could not save budget.');
         });
     });
 });

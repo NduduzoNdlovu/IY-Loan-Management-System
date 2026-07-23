@@ -13,6 +13,7 @@
 <!-- <link rel="icon" type="image/png" href="<?= APP_URL ?>/public/assets/images/iylogo.png"> -->
 <link rel="icon" type="image/png" href="assets/images/iylogo.png">
 
+
 </head>
 <body>
 <div class="app-shell">
@@ -99,6 +100,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>window.APP_URL = "<?= APP_URL ?>";</script>
 <script src="<?= APP_URL ?>/assets/js/app.js"></script>
+<script src="<?= APP_URL ?>/assets/js/toast.js"></script>
 <?= $pageScripts ?? '' ?>
 </body>
 </html>

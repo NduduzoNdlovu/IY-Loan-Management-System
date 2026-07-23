@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(r => r.json().then(data => ({ status: r.status, data })))
             .then(({ status, data }) => {
                 if (status === 200 && data.success) {
-                    alert('Loan saved successfully.\nReference Number: ' + data.loan.reference_number);
+                    Toast.success('Loan saved successfully.\nReference Number: ' + data.loan.reference_number);
                     form.reset();
                     resetClientState();
                     hint.textContent = '';
@@ -144,10 +144,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else if (data.errors) {
                     showErrors(data.errors);
                 } else {
-                    alert(data.message || 'Something went wrong. Please try again.');
+                    Toast.error(data.message || 'Something went wrong. Please try again.');
                 }
             })
-            .catch(() => alert('Network error. Please try again.'))
+            .catch(() => Toast.error('Network error. Please try again.'))
             .finally(() => {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="bi bi-check-lg"></i> Save Loan';
