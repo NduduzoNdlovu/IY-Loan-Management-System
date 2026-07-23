@@ -14,7 +14,7 @@
         <div class="login-card">
             <div class="login-brand">
                 <span class="brand-icon"><i class="bi bi-bank2"></i></span>
-                <h1>Loan Management</h1>
+                <h1>IY Loan Management</h1>
                 <p>Sign in to access your dashboard</p>
             </div>
 
