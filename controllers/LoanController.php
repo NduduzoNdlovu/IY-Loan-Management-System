@@ -41,8 +41,12 @@ class LoanController extends Controller
                 'branch_id'           => (int) $_POST['branch_id'],
                 'loan_status_id'      => (int) $_POST['loan_status_id'],
                 'repayment_status_id' => (int) $_POST['repayment_status_id'],
+                // 'amount'              => (float) $_POST['amount'],
+                // 'action_date'         => $_POST['action_date'],
+                // 'notes'               => trim($_POST['notes'] ?? ''),
                 'amount'              => (float) $_POST['amount'],
                 'action_date'         => $_POST['action_date'],
+                'date_loaded'         => $_POST['date_loaded'],
                 'notes'               => trim($_POST['notes'] ?? ''),
                 'created_by'          => Auth::user()['id'],
             ]);
@@ -65,6 +69,7 @@ class LoanController extends Controller
         if (empty($d['loan_status_id']))         $errors['loan_status_id'] = 'Loan Status is required.';
         if (empty($d['repayment_status_id']))    $errors['repayment_status_id'] = 'Repayment Status is required.';
         if (empty($d['action_date']))            $errors['action_date'] = 'Action Date is required.';
+        if (empty($d['date_loaded']))            $errors['date_loaded'] = 'Date Loaded is required.';
         return $errors;
     }
 
@@ -139,6 +144,7 @@ class LoanController extends Controller
         if (empty($_POST['loan_status_id']))         $errors['loan_status_id'] = 'Loan Status is required.';
         if (empty($_POST['repayment_status_id']))    $errors['repayment_status_id'] = 'Repayment Status is required.';
         if (empty($_POST['action_date']))            $errors['action_date'] = 'Action Date is required.';
+        if (empty($_POST['date_loaded']))            $errors['date_loaded'] = 'Date Loaded is required.';
         if (!empty($errors)) $this->json(['success' => false, 'errors' => $errors], 422);
 
         $ok = (new Loan())->update((int) $id, [
@@ -147,6 +153,7 @@ class LoanController extends Controller
             'repayment_status_id' => (int) $_POST['repayment_status_id'],
             'amount'              => (float) $_POST['amount'],
             'action_date'         => $_POST['action_date'],
+            'date_loaded'         => $_POST['date_loaded'],
             'notes'               => trim($_POST['notes'] ?? ''),
         ]);
         $this->json(['success' => $ok]);

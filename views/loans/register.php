@@ -147,9 +147,17 @@
                         <?php foreach ($branches as $b): ?><option value="<?= $b['id'] ?>"><?= htmlspecialchars($b['branch_name']) ?></option><?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-6">
+                <!-- <div class="col-md-6">
                     <label class="form-label">Action Date *</label>
                     <input type="date" class="form-control" name="action_date" id="edit_action_date" required>
+                </div> -->
+                <div class="col-md-6">
+                    <label class="form-label">Action Date * <span class="text-muted fw-normal">(payment due date)</span></label>
+                    <input type="date" class="form-control" name="action_date" id="edit_action_date" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Date Loaded * <span class="text-muted fw-normal">(sets budget month)</span></label>
+                    <input type="date" class="form-control" name="date_loaded" id="edit_date_loaded" required>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Status *</label>

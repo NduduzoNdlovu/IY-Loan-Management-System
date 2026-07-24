@@ -68,9 +68,15 @@
                         <div class="invalid-feedback" data-error-for="branch_id"></div>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Action Date *</label>
+                        <label class="form-label">Action Date * <span class="text-muted fw-normal">(client's expected payment date)</span></label>
                         <input type="date" class="form-control" name="action_date" value="<?= date('Y-m-d') ?>" required>
                         <div class="invalid-feedback" data-error-for="action_date"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Date Loaded * <span class="text-muted fw-normal">(sets the budget month)</span></label>
+                        <input type="date" class="form-control" name="date_loaded" id="dateLoadedInput" value="<?= date('Y-m-d') ?>" max="<?= date('Y-m-d') ?>" required>
+                        <div class="form-text">Backdate this if you're capturing a loan from a previous month.</div>
+                        <div class="invalid-feedback" data-error-for="date_loaded"></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Loan Status *</label>
@@ -120,19 +126,14 @@
                         "Spent" only counts loans with Loan Status <strong>Disbursed</strong> or <strong>Closed</strong> — funds aren't counted as spent until they've actually been paid out.
                     </div>
                 </div>
-
-                <div class="system-generated-box mt-3">
-                    <div class="sg-title">SYSTEM GENERATED (Auto-Calculated)</div>
+                            <div class="system-generated-box mt-3">
+                    <div class="sg-title">SYSTEM CALCULATED (Auto)</div>
                     <div class="row g-3">
-                        <div class="col-md-4">
-                            <label class="form-label">Date Loaded</label>
-                            <input type="text" class="form-control" value="<?= date('d/m/Y') ?>" readonly>
-                        </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label">Loan Count</label>
                             <input type="text" class="form-control" id="loanCountDisplay" value="1" readonly>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label">Group</label>
                             <input type="text" class="form-control" id="groupDisplay" value="Group 1 (1 - 3 Loans)" readonly>
                         </div>

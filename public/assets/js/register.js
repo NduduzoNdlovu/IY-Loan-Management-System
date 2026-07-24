@@ -167,8 +167,11 @@ $(function () {
             $('#edit_loan_id').val(l.id);
             $('#edit_amount').val(l.amount);
             $('#edit_branch_id').val(l.branch_id);
+
             $('#edit_action_date').val(l.action_date);
             $('#edit_loan_status_id').val(l.loan_status_id);
+            $('#edit_date_loaded').val(l.date_loaded ? String(l.date_loaded).slice(0, 10) : '');
+
             $('#edit_repayment_status_id').val(l.repayment_status_id);
             $('#edit_notes').val(l.notes || '');
             new bootstrap.Modal(document.getElementById('editLoanModal')).show();
@@ -182,6 +185,7 @@ $(function () {
             amount: $('#edit_amount').val(),
             branch_id: $('#edit_branch_id').val(),
             action_date: $('#edit_action_date').val(),
+            date_loaded: $('#edit_date_loaded').val(),
             loan_status_id: $('#edit_loan_status_id').val(),
             repayment_status_id: $('#edit_repayment_status_id').val(),
             notes: $('#edit_notes').val(),

@@ -64,13 +64,41 @@ class Loan extends Model
 
             $reference = $this->nextReferenceNumber();
 
+            // $this->query(
+            //     "INSERT INTO loans
+            //         (reference_number, client_id, branch_id, loan_status_id, repayment_status_id,
+            //          amount, action_date, notes, created_by)
+            //      VALUES
+            //         (:reference_number, :client_id, :branch_id, :loan_status_id, :repayment_status_id,
+            //          :amount, :action_date, :notes, :created_by)",
+            //     [
+            //         'reference_number'    => $reference,
+            //         'client_id'           => $client['id'],
+            //         'branch_id'           => $d['branch_id'],
+            //         'loan_status_id'      => $d['loan_status_id'],
+            //         'repayment_status_id' => $d['repayment_status_id'],
+            //         'amount'              => $d['amount'],
+            //         'action_date'         => $d['action_date'],
+            //         'notes'               => $d['notes'] ?? null,
+            //         'created_by'          => $d['created_by'] ?? null,
+            //     ]
+            // );
+
+
+            // date_loaded drives which month's branch budget this loan counts
+            // against, and must be editable so older loans can be captured
+            // retroactively. It is stored in loans.created_at (aliased as
+            // date_loaded in loan_register_view). Falls back to "now" if not
+            // supplied, so this stays backward compatible.
+            $dateLoaded = !empty($d['date_loaded']) ? $d['date_loaded'] : date('Y-m-d');
+
             $this->query(
                 "INSERT INTO loans
                     (reference_number, client_id, branch_id, loan_status_id, repayment_status_id,
-                     amount, action_date, notes, created_by)
+                     amount, action_date, notes, created_by, created_at)
                  VALUES
                     (:reference_number, :client_id, :branch_id, :loan_status_id, :repayment_status_id,
-                     :amount, :action_date, :notes, :created_by)",
+                     :amount, :action_date, :notes, :created_by, :date_loaded)",
                 [
                     'reference_number'    => $reference,
                     'client_id'           => $client['id'],
@@ -81,6 +109,7 @@ class Loan extends Model
                     'action_date'         => $d['action_date'],
                     'notes'               => $d['notes'] ?? null,
                     'created_by'          => $d['created_by'] ?? null,
+                    'date_loaded'         => $dateLoaded,
                 ]
             );
 
@@ -102,12 +131,30 @@ class Loan extends Model
         }
     }
 
-    public function update(int $id, array $d): bool
+    // public function update(int $id, array $d): bool
+    // {
+    //     return $this->query(
+    //         "UPDATE loans SET branch_id = :branch_id, loan_status_id = :loan_status_id,
+    //             repayment_status_id = :repayment_status_id, amount = :amount, action_date = :action_date,
+    //             notes = :notes, updated_at = NOW()
+    //          WHERE id = :id",
+    //         [
+    //             'branch_id'           => $d['branch_id'],
+    //             'loan_status_id'      => $d['loan_status_id'],
+    //             'repayment_status_id' => $d['repayment_status_id'],
+    //             'amount'              => $d['amount'],
+    //             'action_date'         => $d['action_date'],
+    //             'notes'               => $d['notes'] ?? null,
+    //             'id'                  => $id,
+    //         ]
+    //     )->rowCount() >= 0;
+    // }
+public function update(int $id, array $d): bool
     {
         return $this->query(
             "UPDATE loans SET branch_id = :branch_id, loan_status_id = :loan_status_id,
                 repayment_status_id = :repayment_status_id, amount = :amount, action_date = :action_date,
-                notes = :notes, updated_at = NOW()
+                notes = :notes, created_at = :date_loaded, updated_at = NOW()
              WHERE id = :id",
             [
                 'branch_id'           => $d['branch_id'],
@@ -116,11 +163,12 @@ class Loan extends Model
                 'amount'              => $d['amount'],
                 'action_date'         => $d['action_date'],
                 'notes'               => $d['notes'] ?? null,
+                'date_loaded'         => $d['date_loaded'],
                 'id'                  => $id,
             ]
         )->rowCount() >= 0;
     }
-
+    
     public function findFull(int $id): ?array
     {
         $row = $this->query("SELECT * FROM loan_register_view WHERE id = :id", ['id' => $id])->fetch();

@@ -10,8 +10,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const groupBox       = document.getElementById('groupDisplay');
     const form           = document.getElementById('captureLoanForm');
 
-    const branchSelect   = form.querySelector('[name="branch_id"]');
-    const actionDateInput = form.querySelector('[name="action_date"]');
+    // const branchSelect   = form.querySelector('[name="branch_id"]');
+    // const actionDateInput = form.querySelector('[name="action_date"]');
+    // const amountInput     = form.querySelector('[name="amount"]');
+    // const budgetBox       = document.getElementById('budgetStatusBox');
+
+    // function refreshBudgetStatus() {
+    //     const branchId = branchSelect.value;
+    //     if (!branchId) { budgetBox.classList.add('d-none'); return; }
+
+    //     const actionDate = actionDateInput.value || new Date().toISOString().slice(0, 10);
+        // const month = actionDate.slice(0, 7) + '-01'; // YYYY-MM-01
+        // const month = actionDate.slice(0, 7) + '-01'; // YYYY-MM-01
+const branchSelect    = form.querySelector('[name="branch_id"]');
+    const dateLoadedInput = form.querySelector('[name="date_loaded"]');
     const amountInput     = form.querySelector('[name="amount"]');
     const budgetBox       = document.getElementById('budgetStatusBox');
 
@@ -19,8 +31,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const branchId = branchSelect.value;
         if (!branchId) { budgetBox.classList.add('d-none'); return; }
 
-        const actionDate = actionDateInput.value || new Date().toISOString().slice(0, 10);
-        const month = actionDate.slice(0, 7) + '-01'; // YYYY-MM-01
+        // Budget month comes from Date Loaded (when the loan was actually
+        // captured), NOT Action Date (the client's repayment due date) -
+        // these track different things.
+        const dateLoaded = dateLoadedInput.value || new Date().toISOString().slice(0, 10);
+        const month = dateLoaded.slice(0, 7) + '-01'; // YYYY-MM-01
 
         fetch(window.APP_URL + '/budgets/status?branch_id=' + encodeURIComponent(branchId) + '&month=' + encodeURIComponent(month))
             .then(r => r.json())
@@ -54,7 +69,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     branchSelect.addEventListener('change', refreshBudgetStatus);
-    actionDateInput.addEventListener('change', refreshBudgetStatus);
+    dateLoadedInput.addEventListener('change', refreshBudgetStatus);
+    // branchSelect.addEventListener('change', refreshBudgetStatus);
+    // actionDateInput.addEventListener('change', refreshBudgetStatus);
     amountInput.addEventListener('input', function () {
         const remainingText = document.getElementById('budgetRemaining').textContent;
         const remaining = parseFloat(remainingText.replace(/[^0-9.-]/g, '')) || 0;
